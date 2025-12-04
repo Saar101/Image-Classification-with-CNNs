@@ -1,0 +1,32 @@
+# Rock–Paper–Scissors Image Classification (TensorFlow / Keras)
+
+A compact Convolutional Neural Network (CNN) for classifying images of hand gestures into **rock**, **paper**, and **scissors**.  
+The project loads images from a ZIP file, builds a TensorFlow `tf.data` pipeline, trains a CNN with early stopping, and visualizes misclassified examples.
+
+## Features
+- Automatic data extraction  
+- tf.data input pipeline  
+- Compact CNN model  
+- Early stopping & best-model saving  
+- Evaluation & error analysis  
+- Notebook & script  
+
+## Project Structure
+- main.ipynb  
+- main.pyt  
+- data/archive.zip  
+- data/rps_data/  
+
+## Requirements
+Python 3.10+, TensorFlow, NumPy, Matplotlib  
+
+## How to Run
+Use the notebook or run:  
+`python main.pyt`
+
+## Model & Training
+CNN with Conv2D, MaxPooling, Dense, Softmax over 3 classes.
+
+## Improvements
+Data augmentation, transfer learning, TensorBoard, deployment ideas.
+
