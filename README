@@ -1,32 +1,256 @@
-# Rock–Paper–Scissors Image Classification (TensorFlow / Keras)
+# Rock–Paper–Scissors Image Classification with CNNs
 
-A compact Convolutional Neural Network (CNN) for classifying images of hand gestures into **rock**, **paper**, and **scissors**.  
-The project loads images from a ZIP file, builds a TensorFlow `tf.data` pipeline, trains a CNN with early stopping, and visualizes misclassified examples.
+A comprehensive TensorFlow/Keras-based image classification project implementing a **Convolutional Neural Network (CNN)** for classifying hand gesture images into rock, paper, and scissors categories.
 
-## Features
-- Automatic data extraction  
-- tf.data input pipeline  
-- Compact CNN model  
-- Early stopping & best-model saving  
-- Evaluation & error analysis  
-- Notebook & script  
+![TensorFlow](https://img.shields.io/badge/TensorFlow-2.20+-orange)
+![Python](https://img.shields.io/badge/Python-3.10+-blue)
+![License](https://img.shields.io/badge/License-MIT-green)
 
-## Project Structure
-- main.ipynb  
-- main.pyt  
-- data/archive.zip  
-- data/rps_data/  
+---
 
-## Requirements
-Python 3.10+, TensorFlow, NumPy, Matplotlib  
+## 📋 Overview
 
-## How to Run
-Use the notebook or run:  
-`python main.pyt`
+This project demonstrates end-to-end deep learning workflow:
+- **Data Pipeline**: Automated Kaggle API-based dataset acquisition and preprocessing
+- **Model Architecture**: Multi-layer CNN with batch normalization and regularization
+- **Training**: Adam optimizer with early stopping and model checkpointing
+- **Evaluation**: Comprehensive accuracy metrics and misclassification analysis
+- **Deployment Ready**: Both Jupyter Notebook and standalone Python script
 
-## Model & Training
-CNN with Conv2D, MaxPooling, Dense, Softmax over 3 classes.
+---
 
-## Improvements
-Data augmentation, transfer learning, TensorBoard, deployment ideas.
+## 🎯 Features
+
+✅ **Automated Dataset Download** – Kaggle API integration for seamless data acquisition  
+✅ **TF.Data Pipeline** – Efficient input pipeline with prefetching and batching  
+✅ **CNN Architecture** – 3-layer convolutional network with max-pooling and dropout  
+✅ **Model Checkpointing** – Saves best model based on validation loss  
+✅ **Early Stopping** – Prevents overfitting with configurable patience  
+✅ **Error Analysis** – Visualizes misclassified examples for debugging  
+✅ **Dual Format** – Jupyter Notebook (`main.ipynb`) and Python script (`main.pyt`)  
+
+---
+
+## 📁 Project Structure
+
+```
+Image-Classification-with-CNNs/
+├── main.ipynb                 # Interactive Jupyter Notebook
+├── main.pyt                   # Standalone Python script
+├── requirements.txt           # Python dependencies
+├── README.md                  # This file
+└── data/
+    ├── archive.zip           # Dataset (auto-downloaded)
+    └── rps_data/             # Extracted dataset
+        ├── rock/
+        ├── paper/
+        └── scissors/
+```
+
+---
+
+## 🔧 Requirements
+
+- **Python**: 3.10 or higher
+- **Key Packages**:
+  - TensorFlow 2.20+
+  - NumPy
+  - Matplotlib
+  - Kaggle API
+  - Pillow
+
+Install all dependencies:
+```bash
+pip install -r requirements.txt
+```
+
+---
+
+## 🚀 Quick Start
+
+### Option 1: Jupyter Notebook
+```bash
+jupyter notebook main.ipynb
+```
+Run cells sequentially to download data, train, and evaluate the model.
+
+### Option 2: Python Script
+```bash
+python main.pyt
+```
+Executes the complete pipeline from data download to evaluation.
+
+---
+
+## 🧠 Model Architecture
+
+| Layer | Configuration | Parameters |
+|-------|----------------|-----------|
+| **Input** | 150×150 RGB images | – |
+| **Rescaling** | Normalize to [0, 1] | – |
+| **Conv2D #1** | 32 filters, 3×3 kernel, ReLU | 896 |
+| **MaxPool #1** | 2×2 pool | – |
+| **Conv2D #2** | 64 filters, 3×3 kernel, ReLU | 18,496 |
+| **MaxPool #2** | 2×2 pool | – |
+| **Conv2D #3** | 128 filters, 3×3 kernel, ReLU | 73,856 |
+| **MaxPool #3** | 2×2 pool | – |
+| **Flatten** | – | – |
+| **Dense #1** | 128 units, ReLU | 131,200 |
+| **Dropout** | 50% | – |
+| **Output** | 4 classes, Softmax | 516 |
+| **Total Parameters** | – | ~225K |
+
+---
+
+## 📊 Training Configuration
+
+```python
+RUN_FULL_TRAIN = True              # Train for full NUM_EPOCHS
+EARLY_STOPPING_PATIENCE = 5         # Stop if no improvement for 5 epochs
+NUM_EPOCHS = 30                     # Maximum training epochs
+BATCH_SIZE = 32                     # Samples per batch
+IMAGE_SIZE = (150, 150)             # Input image resolution
+VALIDATION_SPLIT = 0.2              # 80% train, 20% validation
+```
+
+**Optimizer**: Adam (learning rate: 0.001)  
+**Loss Function**: Sparse Categorical Crossentropy  
+**Metrics**: Accuracy
+
+---
+
+## 📦 Dataset
+
+The project automatically downloads the **Rock-Paper-Scissors** dataset from Kaggle:
+- **Source**: [drgfreeman/rockpaperscissors](https://www.kaggle.com/datasets/drgfreeman/rockpaperscissors)
+- **Total Samples**: ~2,500 images
+- **Classes**: 4 (rock, paper, scissors, + background)
+- **Format**: PNG images (500×500 px, auto-resized to 150×150)
+
+**Setup**: Place `kaggle.json` in `~/.kaggle/` for API authentication.
+
+---
+
+## 📈 Results & Evaluation
+
+The model generates:
+- **Training curves** (loss & accuracy per epoch)
+- **Validation accuracy** on holdout set
+- **Misclassified examples** visualization (up to 6 samples)
+- **Saved Models**:
+  - `best_rps_model.keras` (best checkpoint)
+  - `rps_cnn_final.keras` (final model)
+
+---
+
+## 🔍 Key Code Sections
+
+### Data Loading
+```python
+importer = DataImporter()
+data_dir = importer.import_data()  # Auto-downloads & extracts
+```
+
+### Model Definition
+```python
+model = tf.keras.Sequential([
+    tf.keras.layers.Rescaling(1./255, input_shape=(150,150,3)),
+    tf.keras.layers.Conv2D(32, (3,3), activation='relu'),
+    tf.keras.layers.MaxPooling2D((2,2)),
+    # ... 2 more Conv+Pool blocks ...
+    tf.keras.layers.Dense(num_classes, activation='softmax')
+])
+```
+
+### Training
+```python
+history = model.fit(
+    train_ds, 
+    validation_data=val_ds, 
+    epochs=NUM_EPOCHS, 
+    callbacks=callbacks
+)
+```
+
+---
+
+## 🛠️ Customization
+
+**To adjust training:**
+- Edit `NUM_EPOCHS`, `BATCH_SIZE`, `IMAGE_SIZE` in cell/script
+- Modify model layers (add Conv2D, Dense, or Dropout)
+- Change `EARLY_STOPPING_PATIENCE` for different early stopping behavior
+
+**To improve performance:**
+- Use data augmentation (rotation, flip, zoom)
+- Increase image resolution (200×200, 224×224)
+- Apply transfer learning (ResNet, MobileNet pretrained weights)
+- Implement class weighting for imbalanced data
+
+---
+
+## 📚 Dependencies
+
+See `requirements.txt` for complete list. Key versions:
+```
+tensorflow==2.20.0
+numpy>=1.24.0
+matplotlib>=3.6.0
+kaggle>=1.5.12
+Pillow>=9.0.0
+```
+
+---
+
+## 📝 Usage Examples
+
+### Train the model
+```bash
+python main.pyt
+```
+Trains for 30 epochs and saves the best model.
+
+### Run in Jupyter
+```bash
+jupyter notebook main.ipynb
+```
+Execute cells in order for interactive training.
+
+### Load and predict with saved model
+```python
+import tensorflow as tf
+model = tf.keras.models.load_model('rps_cnn_final.keras')
+predictions = model.predict(new_images)
+```
+
+---
+
+## 🚧 Future Enhancements
+
+- [ ] Data augmentation pipeline (rotation, brightness, zoom)
+- [ ] Transfer learning with pre-trained backbones (ResNet50, MobileNetV2)
+- [ ] TensorBoard integration for real-time monitoring
+- [ ] Confusion matrix and classification report
+- [ ] Flask/FastAPI web service for inference
+- [ ] Model quantization for mobile deployment
+- [ ] Automated hyperparameter tuning (Keras Tuner)
+
+---
+
+
+## 👤 Author
+
+Developed as an educational deep learning exercise.
+
+---
+
+## 🔗 References
+
+- [TensorFlow Documentation](https://www.tensorflow.org)
+- [Keras Sequential API](https://keras.io/api/models/sequential/)
+- [Kaggle Datasets](https://www.kaggle.com/datasets)
+
+---
+
+**Last Updated**: December 2025
 
