@@ -1,60 +1,51 @@
 import os
-import shutil
-from kaggle.api.kaggle_api_extended import KaggleApi
+import zipfile
 
 RUN_FULL_TRAIN = True
 EARLY_STOPPING_PATIENCE = 5
 NUM_EPOCHS = 30
 
-class DataImporter:
-    def __init__(self):
-        self.DATASET_SLUG = "drgfreeman/rockpaperscissors"
-        self.DATASET_URL = f"https://www.kaggle.com/datasets/{self.DATASET_SLUG}"
+data_dir = './data/rps_data'
 
-        script_dir = os.path.dirname(os.path.abspath(__file__))
-        self.DATA_DIR = os.path.join(script_dir, "data")
+if not os.path.exists(data_dir):
+    os.makedirs('./data', exist_ok=True)
+    try:
+        from kaggle.api.kaggle_api_extended import KaggleApi
+    except Exception as e:
+        print('Kaggle API not available:', e)
+        exit(1)
 
-    def import_data(self):
-        print("Dataset URL:", self.DATASET_URL)
-        print("DATA_DIR:", self.DATA_DIR)
+    api = KaggleApi()
+    try:
+        api.authenticate()
+    except Exception as e:
+        print('Kaggle authentication failed:', e)
+        exit(1)
 
-        os.makedirs(self.DATA_DIR, exist_ok=True)
+    try:
+        api.dataset_download_files('sartajbhuvaji/rock-paper-scissors', path='./data', unzip=True)
+    except Exception as e:
+        print('Kaggle download failed:', e)
+        exit(1)
 
-        def find_dataset_folder():
-            for root, dirs, files in os.walk(self.DATA_DIR):
-                dir_names = set(dirs)
-                if {"rock", "paper", "scissors"}.issubset(dir_names):
-                    return root
-            return None
-
-        dataset_folder = find_dataset_folder()
-
-        if dataset_folder is None:
-            print("Dataset not found locally. Downloading from Kaggle...")
-
-            api = KaggleApi()
-            api.authenticate()
-
-            api.dataset_download_files(
-                self.DATASET_SLUG,
-                path=self.DATA_DIR,
-                unzip=True
-            )
-
-            print("Download and extract completed.")
-            dataset_folder = find_dataset_folder()
-            if dataset_folder is None:
-                raise RuntimeError(
-                    f"Download finished, but could not find 'rock','paper','scissors' under {self.DATA_DIR}"
-                )
-        else:
-            print("Dataset already exists locally:", dataset_folder)
-
-        print("USING DATASET FOLDER:", dataset_folder)
-        return dataset_folder
-
-importer = DataImporter()
-data_dir = importer.import_data()
+    if os.path.exists('./data/rps'):
+        os.rename('./data/rps', data_dir)
+    elif os.path.exists('./data/rock-paper-scissors'):
+        os.rename('./data/rock-paper-scissors', data_dir)
+    else:
+        possible = [os.path.join('./data', d) for d in os.listdir('./data') if os.path.isdir(os.path.join('./data', d))]
+        found = False
+        for p in possible:
+            try:
+                if set(['rock', 'paper', 'scissors']).issubset(set(os.listdir(p))):
+                    os.rename(p, data_dir)
+                    found = True
+                    break
+            except Exception:
+                continue
+        if not found:
+            print('Kaggle download completed but dataset folder not found')
+            exit(1)
 
 try:
     import tensorflow as tf
