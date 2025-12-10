@@ -1,4 +1,4 @@
-# 🪨📄✂️ Rock–Paper–Scissors Image Classification with CNNs
+# Rock–Paper–Scissors Image Classification with CNNs 🪨📄✂️ 
 
 This project implements an image classification system using **Convolutional Neural Networks (CNNs)** with TensorFlow/Keras to classify hand-gesture images into **Rock, Paper, Scissors & Background**.  
 The project includes a full training pipeline, dataset integration via Kaggle API, evaluation utilities, and both Notebook & Python script execution options.
